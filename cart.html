@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Cart · Buggy Bazaar</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛒</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/cart.css" />
+</head>
+<body>
+
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <header class="navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="navbar-logo">Buggy Bazaar <span>🛒</span></a>
+
+      <nav class="navbar-menu">
+        <a href="index.html">Home</a>
+        <a href="index.html#shop">Shop</a>
+        <a href="index.html#categories">Categories</a>
+        <a href="index.html#about">About</a>
+      </nav>
+
+      <div class="navbar-actions">
+        <a href="cart.html" class="cart-link" aria-label="View cart">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          <span class="cart-count" data-cart-count>0</span>
+        </a>
+        <button class="navbar-toggle" aria-label="Toggle menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="section">
+      <div class="section-inner">
+        <h1 class="section-title">Your Cart</h1>
+
+        <div class="cart-empty-state" id="cart-empty-state" hidden>
+          <p class="cart-empty-title">Your cart is empty.</p>
+          <p class="cart-empty-subtitle">Looks like you haven't added anything yet.</p>
+          <a href="index.html#shop" class="btn btn-primary">Start Shopping</a>
+        </div>
+
+        <div class="cart-layout" id="cart-layout" hidden>
+          <div class="cart-items" id="cart-items"></div>
+
+          <aside class="cart-summary">
+            <h2>Order Summary</h2>
+
+            <form id="coupon-form" class="coupon-form">
+              <label for="coupon-input">Have a coupon?</label>
+              <div class="coupon-form-row">
+                <input type="text" id="coupon-input" placeholder="Enter coupon" autocomplete="off" />
+                <button type="submit" class="btn btn-outline btn-small">Apply</button>
+              </div>
+              <p id="coupon-message" class="coupon-message" role="status"></p>
+            </form>
+
+            <dl class="summary-rows">
+              <div class="summary-row">
+                <dt>Subtotal</dt>
+                <dd id="summary-subtotal">₹0</dd>
+              </div>
+              <div class="summary-row">
+                <dt>Discount</dt>
+                <dd id="summary-discount">− ₹0</dd>
+              </div>
+              <div class="summary-row">
+                <dt>Delivery</dt>
+                <dd id="summary-delivery">₹0</dd>
+              </div>
+              <div class="summary-row summary-row-total">
+                <dt>Total</dt>
+                <dd id="summary-total">₹0</dd>
+              </div>
+            </dl>
+
+            <div class="cart-actions">
+              <a href="index.html#shop" class="btn btn-ghost">Continue Shopping</a>
+              <a href="checkout.html" class="btn btn-primary">Proceed to Checkout</a>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="footer-logo">Buggy Bazaar 🛒</span>
+      </div>
+      <div class="footer-col">
+        <h3>Quick Links</h3>
+        <a href="index.html">Home</a>
+        <a href="index.html#shop">Shop</a>
+        <a href="cart.html">Cart</a>
+        <a href="index.html#about">About</a>
+      </div>
+      <div class="footer-col">
+        <h3>Categories</h3>
+        <a href="index.html#shop">Electronics</a>
+        <a href="index.html#shop">Fashion</a>
+        <a href="index.html#shop">Books</a>
+        <a href="index.html#shop">Home</a>
+      </div>
+      <div class="footer-col">
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 Buggy Bazaar..</div>
+  </footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/cart.js"></script>
+</body>
+</html>
