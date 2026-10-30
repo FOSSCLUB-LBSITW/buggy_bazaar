@@ -19,6 +19,9 @@ const BuggyBazaar = (() => {
   }
   const CART_KEY = "buggyBazaarCart";
   const COUPON_KEY = "buggyBazaarCoupon";
+  const BROWSING_HISTORY_KEY = "buggyBazaarBrowsingHistory";
+  const BROWSING_HISTORY_LIMIT = 20;
+  const CATEGORY_HISTORY_LIMIT = 12;
 
   function readStorage(key, fallback) {
     const saved = localStorage.getItem(key);
@@ -73,6 +76,80 @@ const BuggyBazaar = (() => {
   function setCoupon(code) {
     if (code) localStorage.setItem(COUPON_KEY, code);
     else localStorage.removeItem(COUPON_KEY);
+  }
+
+  function getBrowsingHistory() {
+    const savedValue = readStorage(BROWSING_HISTORY_KEY, {});
+    const saved = savedValue && typeof savedValue === "object" ? savedValue : {};
+    const validProductIds = new Set(PRODUCTS.map((product) => product.id));
+    const validCategories = new Set(PRODUCTS.map((product) => product.category));
+    const views = Array.isArray(saved.views)
+      ? saved.views.filter((id) => typeof id === "string" && validProductIds.has(id)).slice(0, BROWSING_HISTORY_LIMIT)
+      : [];
+    const categories = Array.isArray(saved.categories)
+      ? saved.categories.filter((category) => typeof category === "string" && validCategories.has(category)).slice(0, CATEGORY_HISTORY_LIMIT)
+      : [];
+    return { views, categories };
+  }
+
+  function saveBrowsingHistory(history) {
+    localStorage.setItem(BROWSING_HISTORY_KEY, JSON.stringify({
+      views: history.views.slice(0, BROWSING_HISTORY_LIMIT),
+      categories: history.categories.slice(0, CATEGORY_HISTORY_LIMIT)
+    }));
+  }
+
+  function recordCategoryInterest(category) {
+    if (!PRODUCTS.some((product) => product.category === category)) return;
+    const history = getBrowsingHistory();
+    history.categories = [category, ...history.categories.filter((item) => item !== category)];
+    saveBrowsingHistory(history);
+  }
+
+  function recordBrowsingActivity(products) {
+    const categories = [...new Set(products.map((product) => product.category))];
+    if (categories.length === 0) return;
+    const history = getBrowsingHistory();
+    history.categories = [...categories, ...history.categories.filter((category) => !categories.includes(category))];
+    saveBrowsingHistory(history);
+  }
+
+  function recordProductView(productId) {
+    const product = PRODUCTS.find((item) => item.id === productId);
+    if (!product) {
+      console.error(`Cannot record view for unknown product "${productId}".`);
+      return;
+    }
+    const history = getBrowsingHistory();
+    history.views = [productId, ...history.views.filter((id) => id !== productId)];
+    history.categories = [product.category, ...history.categories.filter((category) => category !== product.category)];
+    saveBrowsingHistory(history);
+  }
+
+  function getRecommendations(excludedProductId = "", limit = 4) {
+    const count = Number.isInteger(limit) ? Math.max(0, limit) : 4;
+    if (count === 0) return [];
+
+    const { views, categories } = getBrowsingHistory();
+    const excludedIds = new Set(views);
+    if (excludedProductId) excludedIds.add(excludedProductId);
+
+    const candidates = PRODUCTS.filter((product) => product.id !== excludedProductId);
+    const unseen = candidates.filter((product) => !excludedIds.has(product.id));
+    const pool = unseen.length >= count ? unseen : candidates;
+    const categoryRank = new Map(categories.map((category, index) => [category, categories.length - index]));
+
+    return pool
+      .sort((a, b) => {
+        const viewedDifference = Number(excludedIds.has(a.id)) - Number(excludedIds.has(b.id));
+        if (viewedDifference !== 0) return viewedDifference;
+        const categoryDifference = (categoryRank.get(b.category) || 0) - (categoryRank.get(a.category) || 0);
+        if (categoryDifference !== 0) return categoryDifference;
+        const featuredDifference = Number(b.featured) - Number(a.featured);
+        if (featuredDifference !== 0) return featuredDifference;
+        return b.rating - a.rating;
+      })
+      .slice(0, count);
   }
 
   function getTotals(cart = getCart()) {
@@ -140,5 +217,9 @@ const BuggyBazaar = (() => {
     }
   });
 
-  return { addToCart, initTheme, formatPrice, getCart, getCoupon, getTotals, makeProductCard, saveCart, setCoupon, showToast };
+  return {
+    addToCart, getBrowsingHistory, getRecommendations, initTheme, formatPrice, getCart, getCoupon,
+    getTotals, makeProductCard, recordBrowsingActivity, recordCategoryInterest, recordProductView,
+    saveCart, setCoupon, showToast
+  };
 })();
