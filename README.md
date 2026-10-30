@@ -12,7 +12,7 @@ No package installation or build step is required. From the project directory, s
 python -m http.server 8000
 ```
 
-Then open `http://localhost:8000` in a browser. The product catalog is in `js/products.js`; cart and coupon data use browser LocalStorage, and the most recent order ID uses SessionStorage. The demo coupon codes `SAVE10` and `BAZAAR10` apply a 10% discount.
+Then open `http://localhost:8000` in a browser. The product catalog is in `js/products.js`; cart, coupon, and browsing history use browser LocalStorage, and the most recent order ID uses SessionStorage. Product views, category selections, and search results inform recommendations on the homepage and product pages. Recommendations fall back to featured and highly rated products when browsing history is unavailable. The demo coupon codes `SAVE10` and `BAZAAR10` apply a 10% discount.
 
 ## Tech Stack
 
@@ -20,7 +20,6 @@ Then open `http://localhost:8000` in a browser. The product catalog is in `js/pr
 - CSS3
 - Vanilla JavaScript
 - Browser LocalStorage / SessionStorage
-
 
 
 
