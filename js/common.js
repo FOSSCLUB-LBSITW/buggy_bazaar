@@ -1,4 +1,22 @@
 const BuggyBazaar = (() => {
+  document.documentElement.setAttribute("data-theme", localStorage.getItem("theme") || (window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+
+  function initTheme() {
+    const btn = document.querySelector("#theme-toggle") || (() => {
+      const b = document.createElement("button");
+      b.id = "theme-toggle"; b.className = "theme-toggle"; b.type = "button";
+      document.querySelector(".navbar-actions")?.prepend(b);
+      return b;
+    })();
+    const setTheme = (t) => {
+      document.documentElement.setAttribute("data-theme", t);
+      localStorage.setItem("theme", t);
+      btn.textContent = t === "dark" ? "☀️" : "🌙";
+      btn.setAttribute("aria-label", `Switch to ${t === "dark" ? "light" : "dark"} mode`);
+    };
+    btn.onclick = () => setTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark");
+    setTheme(localStorage.getItem("theme") || (window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+  }
   const CART_KEY = "buggyBazaarCart";
   const COUPON_KEY = "buggyBazaarCoupon";
 
@@ -104,6 +122,7 @@ const BuggyBazaar = (() => {
   }
 
   document.addEventListener("DOMContentLoaded", () => {
+    initTheme();
     updateCartCount();
     const toggle = document.querySelector(".navbar-toggle");
     const menu = document.querySelector(".navbar-menu");
@@ -121,5 +140,5 @@ const BuggyBazaar = (() => {
     }
   });
 
-  return { addToCart, formatPrice, getCart, getCoupon, getTotals, makeProductCard, saveCart, setCoupon, showToast };
+  return { addToCart, initTheme, formatPrice, getCart, getCoupon, getTotals, makeProductCard, saveCart, setCoupon, showToast };
 })();
