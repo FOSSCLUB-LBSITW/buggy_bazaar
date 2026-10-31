@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const featuredGrid = document.getElementById("featured-products");
+  const recommendationGrid = document.getElementById("recommendation-products");
   const productGrid = document.getElementById("product-grid");
   const searchInput = document.getElementById("search-input");
   const sortSelect = document.getElementById("sort-select");
@@ -9,6 +10,10 @@ document.addEventListener("DOMContentLoaded", () => {
   PRODUCTS.filter((product) => product.featured).forEach((product) => {
     featuredGrid.append(BuggyBazaar.makeProductCard(product));
   });
+
+  function renderRecommendations() {
+    recommendationGrid.replaceChildren(...BuggyBazaar.getRecommendations().map(BuggyBazaar.makeProductCard));
+  }
 
   document.querySelectorAll("[data-category-count]").forEach((count) => {
     const category = count.dataset.categoryCount;
@@ -34,6 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     productGrid.replaceChildren(...products.map(BuggyBazaar.makeProductCard));
     emptyState.hidden = products.length > 0;
+    return products;
   }
 
   function setCategory(category) {
@@ -44,6 +50,10 @@ document.addEventListener("DOMContentLoaded", () => {
       pill.setAttribute("aria-pressed", String(active));
     });
     renderProducts();
+    if (category !== "All") {
+      BuggyBazaar.recordCategoryInterest(category);
+      renderRecommendations();
+    }
   }
 
   document.querySelectorAll(".filter-pill").forEach((pill) => {
@@ -55,7 +65,13 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("shop").scrollIntoView({ behavior: "smooth" });
     });
   });
-  searchInput.addEventListener("input", renderProducts);
+  searchInput.addEventListener("input", () => {
+    const products = renderProducts();
+    if (searchInput.value.trim()) {
+      BuggyBazaar.recordBrowsingActivity(products);
+      renderRecommendations();
+    }
+  });
   sortSelect.addEventListener("change", renderProducts);
   document.addEventListener("click", (event) => {
     const addButton = event.target.closest("[data-add-product]");
@@ -66,4 +82,5 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   renderProducts();
+  renderRecommendations();
 });

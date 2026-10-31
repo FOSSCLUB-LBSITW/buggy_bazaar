@@ -7,6 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
     message.className = "empty-state";
     message.textContent = "We couldn't find that product. Explore our latest picks below.";
     productMain.prepend(message);
+  } else {
+    BuggyBazaar.recordProductView(product.id);
   }
 
   const image = document.getElementById("product-image");
@@ -50,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  const related = PRODUCTS.filter((item) => item.category === product.category && item.id !== product.id).slice(0, 4);
-  const recommendations = related.length ? related : PRODUCTS.filter((item) => item.id !== product.id).slice(0, 4);
-  document.getElementById("related-products").replaceChildren(...recommendations.map(BuggyBazaar.makeProductCard));
+  document.getElementById("related-products").replaceChildren(
+    ...BuggyBazaar.getRecommendations(product.id).map(BuggyBazaar.makeProductCard)
+  );
 });
