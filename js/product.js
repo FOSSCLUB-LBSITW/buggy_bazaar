@@ -55,4 +55,13 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("related-products").replaceChildren(
     ...BuggyBazaar.getRecommendations(product.id).map(BuggyBazaar.makeProductCard)
   );
+
+  if (product && product.id) {
+    BuggyBazaar.api.getProduct(product.id).then((live) => {
+      if (live) {
+        document.getElementById("product-stock").textContent = `${live.stock} in stock`;
+        quantityInput.max = String(live.stock);
+      }
+    }).catch(() => {});
+  }
 });

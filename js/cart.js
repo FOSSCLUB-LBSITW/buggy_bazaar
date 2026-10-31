@@ -74,20 +74,33 @@ document.addEventListener("DOMContentLoaded", () => {
     if (input) updateQuantity(input.dataset.cartQuantity, Number(input.value) || 1);
   });
 
-  couponForm.addEventListener("submit", (event) => {
+  couponForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const code = couponInput.value.trim().toUpperCase();
-    if (code === "SAVE10" || code === "BAZAAR10") {
-      BuggyBazaar.setCoupon(code);
-      couponMessage.textContent = "10% discount applied.";
-      couponMessage.style.color = "var(--success)";
-      renderCart();
-    } else {
-      BuggyBazaar.setCoupon("");
-      couponMessage.textContent = "That coupon code isn't valid.";
-      couponMessage.style.color = "var(--danger)";
-      renderCart();
+    const totals = BuggyBazaar.getTotals();
+    try {
+      const res = await BuggyBazaar.api.validateCoupon(code, totals.subtotal);
+      if (res.valid) {
+        BuggyBazaar.setCoupon(code);
+        couponMessage.textContent = res.message;
+        couponMessage.style.color = "var(--success)";
+      } else {
+        BuggyBazaar.setCoupon("");
+        couponMessage.textContent = res.message;
+        couponMessage.style.color = "var(--danger)";
+      }
+    } catch {
+      if (code === "SAVE10" || code === "BAZAAR10") {
+        BuggyBazaar.setCoupon(code);
+        couponMessage.textContent = "10% discount applied.";
+        couponMessage.style.color = "var(--success)";
+      } else {
+        BuggyBazaar.setCoupon("");
+        couponMessage.textContent = "That coupon code isn't valid.";
+        couponMessage.style.color = "var(--danger)";
+      }
     }
+    renderCart();
   });
 
   renderCart();

@@ -217,9 +217,70 @@ const BuggyBazaar = (() => {
     }
   });
 
+  const API_BASE = (window.location.protocol.startsWith("http") ? "" : "http://localhost:3001") + "/api/v1";
+
+  const api = {
+    async getProducts(params = {}) {
+      const q = new URLSearchParams(params).toString();
+      const res = await fetch(`${API_BASE}/products${q ? `?${q}` : ""}`);
+      if (!res.ok) throw new Error("Failed to fetch products");
+      const json = await res.json();
+      return json.data;
+    },
+    async getProduct(id) {
+      const res = await fetch(`${API_BASE}/products/${encodeURIComponent(id)}`);
+      if (!res.ok) throw new Error("Product not found");
+      const json = await res.json();
+      return json.data;
+    },
+    async getCategories() {
+      const res = await fetch(`${API_BASE}/categories`);
+      if (!res.ok) throw new Error("Failed to fetch categories");
+      const json = await res.json();
+      return json.data;
+    },
+    async validateCoupon(code, subtotal) {
+      const res = await fetch(`${API_BASE}/coupons/validate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, subtotal }),
+      });
+      const json = await res.json();
+      return json.data || json;
+    },
+    async checkout(orderData) {
+      const res = await fetch(`${API_BASE}/orders/checkout`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.message || "Checkout failed");
+      return json.data;
+    },
+    async getOrder(id) {
+      const res = await fetch(`${API_BASE}/orders/${encodeURIComponent(id)}`);
+      if (!res.ok) throw new Error("Order not found");
+      const json = await res.json();
+      return json.data;
+    },
+    async syncCatalog() {
+      try {
+        const items = await api.getProducts({ limit: 100 });
+        if (Array.isArray(items) && items.length > 0 && typeof PRODUCTS !== "undefined") {
+          PRODUCTS.splice(0, PRODUCTS.length, ...items);
+          return items;
+        }
+      } catch (e) {
+        console.warn("API sync skipped, falling back to static catalog:", e.message);
+      }
+      return typeof PRODUCTS !== "undefined" ? PRODUCTS : [];
+    }
+  };
+
   return {
     addToCart, getBrowsingHistory, getRecommendations, initTheme, formatPrice, getCart, getCoupon,
     getTotals, makeProductCard, recordBrowsingActivity, recordCategoryInterest, recordProductView,
-    saveCart, setCoupon, showToast
+    saveCart, setCoupon, showToast, api
   };
 })();

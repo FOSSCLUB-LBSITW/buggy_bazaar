@@ -87,6 +87,12 @@
       const el = document.getElementById("order-id");
       if (orderId) {
         el.textContent = orderId;
+        BuggyBazaar.api.getOrder(orderId).then((order) => {
+          if (order) {
+            const note = document.querySelector(".success-note");
+            if (note) note.textContent = `Order of ${BuggyBazaar.formatPrice(order.total_amount)} confirmed for ${order.customer_name}.`;
+          }
+        }).catch(() => {});
         sessionStorage.removeItem("buggyBazaarLastOrder");
       } else {
         const year = new Date().getFullYear();

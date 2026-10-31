@@ -107,10 +107,29 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const orderId = `BB-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`;
-    sessionStorage.setItem("buggyBazaarLastOrder", orderId);
-    BuggyBazaar.saveCart([]);
-    BuggyBazaar.setCoupon("");
-    window.location.href = "success.html";
+    const payload = {
+      customer_name: document.getElementById("full-name").value.trim(),
+      email: document.getElementById("email").value.trim(),
+      phone: document.getElementById("phone").value.trim(),
+      shipping_address: `${document.getElementById("address").value.trim()}, ${document.getElementById("city").value.trim()}, ${document.getElementById("state").value.trim()} - ${document.getElementById("pincode").value.trim()}`,
+      payment_method: method,
+      coupon_code: BuggyBazaar.getCoupon() || null,
+      items: cart.map((i) => ({ product_id: i.id, quantity: i.quantity })),
+    };
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.disabled = true;
+
+    BuggyBazaar.api.checkout(payload)
+      .then((data) => {
+        sessionStorage.setItem("buggyBazaarLastOrder", data.order_id);
+        BuggyBazaar.saveCart([]);
+        BuggyBazaar.setCoupon("");
+        window.location.href = "success.html";
+      })
+      .catch((err) => {
+        if (submitBtn) submitBtn.disabled = false;
+        BuggyBazaar.showToast(err.message || "Checkout failed");
+      });
   });
 });

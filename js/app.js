@@ -83,4 +83,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   renderProducts();
   renderRecommendations();
+
+  BuggyBazaar.api.syncCatalog().then(() => {
+    featuredGrid.replaceChildren(...PRODUCTS.filter((product) => product.featured).map(BuggyBazaar.makeProductCard));
+    renderProducts();
+    renderRecommendations();
+    BuggyBazaar.api.getCategories().then((cats) => {
+      cats.forEach((c) => {
+        const el = document.querySelector(`[data-category-count="${c.name}"]`);
+        if (el) el.textContent = `${c.item_count} items`;
+      });
+    }).catch(() => {});
+  });
 });

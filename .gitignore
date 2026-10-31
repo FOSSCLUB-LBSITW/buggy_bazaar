@@ -1,5 +1,10 @@
 
+# Dependencies & Environment
+node_modules/
+.env
+
 # Local/editor files
 .vscode/
 .DS_Store
 Thumbs.db
+
